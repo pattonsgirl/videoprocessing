@@ -5,7 +5,7 @@ import numpy as np
 
 def fromMat2Vtk( src):
     importer = vtk.vtkImageImport()
-    frame = cv.cvtColor( src, cv.COLOR_BGR2RGB)
+    #frame = cv.cvtColor( src, cv.COLOR_BGR2RGB)
     importer.SetDataSpacing( 1, 1, 1 )
     importer.SetDataOrigin( 0, 0, 0 )
     print(frame.shape)
@@ -22,7 +22,7 @@ def fromMat2Vtk( src):
 def main():
   # Parse input arguments
   inputFilename = 'Bunny.jpg'
-
+  #IMREAD_COLOR sets to BGR mode
   img = cv.imread (inputFilename, cv.IMREAD_COLOR)
 
    # Read the image

@@ -16,6 +16,7 @@
 #include <vtkMutableDirectedGraph.h>
 #include <vtkTransform.h>
 #include <vtkTransformPolyDataFilter.h>
+#include <vtkImageReslice.h>
 //#include <vtkSphereSource.h>
 //#include <vtkGlyph3D.h>
 //#include <vtkGraph.h>
@@ -65,17 +66,46 @@ void fromMat2Vtk( Mat src, vtkImageData* dest ) {
 
 vtkImageData* fromMat2Vtk( Mat src ) {
   vtkImageImport *importer = vtkImageImport::New();
-  static Mat frame;
-  cvtColor( src, frame, cv::COLOR_BGR2RGB);
+  //now implement the transform
+  static Mat frame, rotMat, rotFrame;
+  cvtColor( src, frame, COLOR_BGR2RGB);
+  //I am proud of this and leaving it alone.
+  //This chunk rotates the image 180 degrees
+  //The shortcut is:
+  //flip(src, dest, 0)
+  Point2f f_center(frame.cols/2.0,frame.rows/2.0);
+  rotMat = getRotationMatrix2D(f_center,180,1);
+  Size s = frame.size();
+  warpAffine(frame, rotFrame, rotMat, s);
+  //still need to mirror after flipping to get original
+  //orientation.  Flipped about horizontal axis
+  flip(rotFrame, rotFrame, +1);
+
   importer->SetDataSpacing( 1, 1, 1 );
   importer->SetDataOrigin( 0, 0, 0 );
-  importer->SetWholeExtent( 0, frame.cols - 1, 0, frame.rows - 1, 0, 0 );
+  //cout << frame.cols;
+  //cout << frame.rows;
+  //cout << frame.channels();
+  importer->SetWholeExtent( 0, rotFrame.cols - 1, 0, rotFrame.rows - 1, 0, 0 );
   importer->SetDataExtentToWholeExtent();
   importer->SetDataScalarTypeToUnsignedChar();
-  importer->SetNumberOfScalarComponents (frame.channels());
-  importer->SetImportVoidPointer( frame.data );
+  importer->SetNumberOfScalarComponents (rotFrame.channels());
+  importer->SetImportVoidPointer( rotFrame.data );
+
   importer->Update();
   return importer->GetOutput();
+
+  /*
+  vtkTransform *flipper = vtkTransform::New();
+  //rotate 180 - orginal was upside down
+  flipper->RotateY(180);
+  vtkImageReslice *importer_rotated = vtkImageReslice::New();
+  importer_rotated->SetInputConnection(importer->GetOutputPort());
+  importer_rotated->SetResliceTransform(flipper);
+  //flipper->Update();
+  importer_rotated->Update();
+  return importer_rotated->GetOutput();
+  */
 }
 
 //int main(int, char* [])
@@ -109,7 +139,7 @@ int main(int argc, char* argv[])
     //check for end of video
     if (frame.empty())
       break;
-      
+
     pBackSub->apply(frame, fgMask);
 
     //get the frame number and write it on the current frame
@@ -136,6 +166,8 @@ int main(int argc, char* argv[])
   vtkImageActor *actor = vtkImageActor::New();
   //actor->GetMapper()->SetInputConnection(reader->GetOutputPort());
   actor->GetMapper()->SetInputData(fromMat2Vtk (fgMask));
+
+  
 
   // Setup renderer
   vtkNamedColors *colors = vtkNamedColors::New();
