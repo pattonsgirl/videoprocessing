@@ -17,6 +17,9 @@
 #include <vtkTransform.h>
 #include <vtkTransformPolyDataFilter.h>
 #include <vtkImageReslice.h>
+#include <vtkPolyData.h>
+#include <vtkSmartPointer.h>
+#include <vtkSphereSource.h>
 //#include <vtkSphereSource.h>
 //#include <vtkGlyph3D.h>
 //#include <vtkGraph.h>
@@ -28,6 +31,8 @@
 #include <vtkInteractorStyleImage.h>
 #include <vtkImageImport.h>
 #include <vtkImageData.h>
+#include <vtkImageMapper.h>
+#include <vtkImageMapper3D.h>
 //includes for opencv
 #include <opencv2/core/mat.hpp>
 #include <opencv2/imgproc.hpp>
@@ -66,9 +71,9 @@ void fromMat2Vtk( Mat src, vtkImageData* dest ) {
 
 vtkImageData* fromMat2Vtk( Mat src ) {
   vtkImageImport *importer = vtkImageImport::New();
-  //now implement the transform
   static Mat frame, rotMat, rotFrame;
   cvtColor( src, frame, COLOR_BGR2RGB);
+
   //I am proud of this and leaving it alone.
   //This chunk rotates the image 180 degrees
   //The shortcut is:
@@ -83,9 +88,6 @@ vtkImageData* fromMat2Vtk( Mat src ) {
 
   importer->SetDataSpacing( 1, 1, 1 );
   importer->SetDataOrigin( 0, 0, 0 );
-  //cout << frame.cols;
-  //cout << frame.rows;
-  //cout << frame.channels();
   importer->SetWholeExtent( 0, rotFrame.cols - 1, 0, rotFrame.rows - 1, 0, 0 );
   importer->SetDataExtentToWholeExtent();
   importer->SetDataScalarTypeToUnsignedChar();
@@ -139,6 +141,7 @@ int main(int argc, char* argv[])
     //show the current frame and the fg masks
     imshow("Frame", frame);
     imshow("FG Mask", fgMask);
+    //imshow("Subtract?", frame - fgMask); - lol, not that easy
     
     //add frames / matrix to array
     clean_frames.push_back(fgMask.clone());
@@ -150,17 +153,47 @@ int main(int argc, char* argv[])
       break;
   }
 
-  //prove that array of Mats was populated - side note, it does!
+  //prove that array of Mats was populated - side note, it works!
   //amedWindow("Movie", 1);
   //imshow("Movie", (clean_frames[20]));
   //waitKey(0);
+
+  //let's break some stuff...
+  //vector of actors
+  std::vector<vtkSmartPointer<vtkActor>> actors;
+  for(int i = 0; i < clean_frames.size(); i++){
+    vtkImageMapper *mapper = vtkImageMapper::New();
+    mapper->SetInputData(fromMat2Vtk(clean_frames[i]));
+    vtkImageActor *actor = vtkImageActor::New();
+    //actor->GetMapper()->SetInputData(fromMat2Vtk (clean_frames[i]));
+    actor->SetMapper(mapper);
+    actors.push_back(actor);
+  }
+  //for(unsigned int i = 0; i < 10; i++)
+  /*for(int i = 0; i < clean_frames.size(); i++)
+  {
+    //vtkSmartPointer<vtkSphereSource> sphereSource = vtkSmartPointer<vtkSphereSource>::New();
+    //sphereSource->SetCenter(i, 0.0, 0.0);
+    //sphereSource->SetRadius(.2);
+
+    vtkPolyDataMapper *mapper = vtkPolyDataMapper::New();
+    //mapper->SetInputConnection(sphereSource->GetOutputPort());
+    mapper->SetInputConnection(fromMat2Vtk(clean_frames[i]));
+
+    vtkActor *actor = vtkActor::New();
+    actor->SetMapper(mapper);
+    
+    actors.push_back(actor);
+  }*/
   
 
   //apply VTK translation in video loop?
   // Create an actor
-  vtkImageActor *actor = vtkImageActor::New();
+  //vtkImageActor *actor = vtkImageActor::New();
   //actor->GetMapper()->SetInputConnection(reader->GetOutputPort());
-  actor->GetMapper()->SetInputData(fromMat2Vtk (fgMask));
+  //returned type is vtkImageData
+  //with nothing additional, fgMask is the last frame read in while loop
+  //actor->GetMapper()->SetInputData(fromMat2Vtk (fgMask));
 
   
 
@@ -168,7 +201,12 @@ int main(int argc, char* argv[])
   vtkNamedColors *colors = vtkNamedColors::New();
 
   vtkRenderer *renderer = vtkRenderer::New();
-  renderer->AddActor(actor);
+  //renderer->AddActor(actor);
+  // Add the actors to the scene
+  for(int i = 0; i < actors.size(); i++)
+  {
+    renderer->AddActor(actors[i]);
+  }
   renderer->ResetCamera();
   renderer->SetBackground(colors->GetColor3d("Burlywood").GetData());
 

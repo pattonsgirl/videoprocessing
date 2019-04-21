@@ -7,12 +7,12 @@ Use background subtraction & other methods to clean up image (eliminate noise)
 
 ### To Run:
 * I hard coded my VTK library in CMakeLists.txt
-* May need to modify on other machines
+* May need to modify on other machines\
 `<mkdir build>`\
 In build directory:\
 `<cmake ..>`\
 `<make>`\
-`<./VidVis>`\
+`<./VidVis>`
 
 ### Tools:
 * VTK 7.1.1
@@ -35,6 +35,8 @@ In build directory:\
 
 
 ### Examples referenced:
+* Lecture Slides for Image Processing / Feature Detection
+  * http://avida.cs.wright.edu/courses/CEG7560/CEG7560_8.pdf
 * Background Subtraction:
   * https://docs.opencv.org/3.4/d1/dc5/tutorial_background_subtraction.html
 * Values (parameters) for MOG2 besides default:
@@ -52,6 +54,7 @@ In build directory:\
   * http://amin-ahmadi.com/2017/06/01/how-to-rotate-andor-flip-mirror-images-in-opencv/
 * Creating array of OpenCV Mats:
   * https://stackoverflow.com/questions/9138537/opencv-creating-an-array-of-mat-objects
+  
 
 
 ### Not implemented, but for reference of others:
