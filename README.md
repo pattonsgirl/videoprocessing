@@ -8,30 +8,30 @@ Use background subtraction & other methods to clean up image (eliminate noise)
 ### To Run:
 * I hard coded my VTK library in CMakeLists.txt
 * May need to modify on other machines
-`<mkdir build>`
-In build directory:
-`<cmake ..>`
-`<make>`
-`<./VidVis>`
+`<mkdir build>`\
+In build directory:\
+`<cmake ..>`\
+`<make>`\
+`<./VidVis>`\
 
 ### Tools:
 * VTK 7.1.1
 * OpenCV 4.1
 
 ### Coding Notes:
-OpenCV 4.1 has MOG, MOG2, and KNN for background subtraction
-Intial exploration is with KNN background subtraction
-Looked into despeckle filters - added fastNlMeansDenoising - ran after KNN background subtraction
-	Would need fastNlMeansDenoisingColored if processing original image
-Explored blurring to reduce pixel noise.  Did not notice improvements with medianBlur / GaussianBlur
-In the end, stuck with MOG2 with custom parameters and stopped working on external methods.
-Future work: would explore connected components algorithms
+* OpenCV 4.1 has MOG, MOG2, and KNN for background subtraction
+* Intial exploration is with KNN background subtraction
+* Looked into despeckle filters - added fastNlMeansDenoising - ran after KNN background subtraction
+  * Would need fastNlMeansDenoisingColored if processing original image
+* Explored blurring to reduce pixel noise.  Did not notice improvements with medianBlur / GaussianBlur
+* In the end, stuck with MOG2 with custom parameters and stopped working on external methods.
+* Future work: would explore connected components algorithms
 
 
 ### Notes on files:
-vastp1.mov & vastp2.mov are files provided for analysis
-Used code from InteractWithImage to get functions to translate from 
-	OpenCV matrix to VTK pipleline & breadboard of VTK pipeline
+* vastp1.mov & vastp2.mov are files provided for analysis
+* Used code from InteractWithImage to get functions to translate from 
+  * OpenCV matrix to VTK pipleline & breadboard of VTK pipeline
 
 
 ### Examples referenced:
