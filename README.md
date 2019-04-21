@@ -64,8 +64,10 @@ In build directory:\
   * http://amin-ahmadi.com/2017/06/01/how-to-rotate-andor-flip-mirror-images-in-opencv/
 * Creating array of OpenCV Mats:
   * https://stackoverflow.com/questions/9138537/opencv-creating-an-array-of-mat-objects
-* Pursued applying vector of actors - no go
+* Pursued applying vector of actors - no go (see notes)
   * https://lorensen.github.io/VTKExamples/site/Cxx/Visualization/VectorOfActors/
+* Pursued applying ImageStack - no go (see notes)
+  * https://cmake.org/Wiki/VTK/Examples/Cxx/Images/ImageStack
 
 
 ### Not implemented, but for reference of others:

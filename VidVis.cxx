@@ -37,6 +37,8 @@
 #include <vtkImageSliceMapper.h>
 #include <vtkImageSlice.h>
 #include <vtkImageStack.h>
+#include <vtkImageReader.h>
+
 
 //includes for opencv
 #include <opencv2/core/mat.hpp>
@@ -139,47 +141,27 @@ int main(int argc, char* argv[]){
   //let's break some stuff...  
   // Create an actor
   //vtkImageActor *actor = vtkImageActor::New();
-  //returned type fromMat2Vtk is vtkImageData
-  //with nothing additional, fgMask is the last frame read in while loop
-  //frame 1 is the first frame with stuff in it, 0 should be good for getting numbers
-  //actor->GetMapper()->SetInputData(fromMat2Vtk (clean_frames[1]));
+  vtkImageActor **actor_array = new vtkImageActor*[clean_frames.size()];
+  for (int i= 0; i<clean_frames.size(); ++i){
+    actor_array[i] = vtkImageActor::New();
+    actor_array[i]->GetMapper()->SetInputData(fromMat2Vtk (clean_frames[i]));
+  }
 
-  //vtkImageReader *read_init = vtkImageReader::New();
-  //read_init->
-  
-  //for (int i = 0; i < clean_frames.size(); i++){
-  vtkImageSliceMapper *imageSliceMapper1 = vtkImageSliceMapper::New();
-  imageSliceMapper1->SetInputData(fromMat2Vtk (clean_frames[5]));
-  vtkImageSlice *imageSlice1 = vtkImageSlice::New();
-  imageSlice1->SetMapper(imageSliceMapper1);
-  imageSlice1->GetProperty()->SetOpacity(.5);
-
-  vtkImageSliceMapper *imageSliceMapper2 = vtkImageSliceMapper::New();
-  imageSliceMapper2->SetInputData(fromMat2Vtk (clean_frames[115]));
-  vtkImageSlice *imageSlice2 = vtkImageSlice::New();
-  imageSlice2->SetMapper(imageSliceMapper2);
-  imageSlice2->GetProperty()->SetOpacity(.2);
-    //vtkImageActor *actor = vtkImageActor::New();
-    //actor->GetMapper()->SetInputData(fromMat2Vtk (clean_frames[i]));
-    //actor->Update();
-  //}
-
-  //vtkMetaImageReader *reader = vtkMetaImageReader::New();
-  //reader->
-
-  vtkImageStack *imageStack = vtkImageStack::New();
-  imageStack->AddImage(imageSlice1);
-  imageStack->AddImage(imageSlice2);
-  //imageStack->SetActiveLayer(1);
+  /*Works for (single) image:
+  returned type fromMat2Vtk is vtkImageData
+  with nothing additional, fgMask is the last frame read in while loop
+  frame 1 is the first frame with stuff in it, 0 should be good for getting numbers
+  actor->GetMapper()->SetInputData(fromMat2Vtk (clean_frames[1]));
+  */
 
   // Setup renderer
   vtkNamedColors *colors = vtkNamedColors::New();
 
   vtkRenderer *renderer = vtkRenderer::New();
-  //renderer->AddActor(actor);
-  renderer->AddViewProp(imageStack);
-  renderer->ResetCamera();
-  // Add the actors to the scene
+  //for (int i = 0; i < clean_frames.size(); i++){
+    renderer->AddActor(actor_array[1]);
+    //renderer->Update();
+  //}
   
   renderer->ResetCamera();
   renderer->SetBackground(colors->GetColor3d("Burlywood").GetData());
@@ -198,6 +180,10 @@ int main(int argc, char* argv[]){
   
   // Render and start interaction
   interactor->Start();
+
+  for (int i= 0; i<clean_frames.size(); ++i){
+    actor_array[i]->Delete();
+  } 
   
   return EXIT_SUCCESS;
 }
