@@ -111,15 +111,11 @@ int main(int argc, char* argv[])
       cerr << "Unable to open: " << inputFilename << endl;
       return 0;
   }
-  
 
   //Ptr<BackgroundSubtractor> pBackSub = createBackgroundSubtractorKNN();
   //Parameters stand for:
   //history=100,varThreshold=200,bShadowDetection=0
   Ptr<BackgroundSubtractor> pBackSub = createBackgroundSubtractorMOG2(100,200,0);
-
-  //Ptr<BackgroundSubtractor> pBackSub = BackgroundSubtractor();
-
   
   //TODO::need to set video capture to mat format
 
