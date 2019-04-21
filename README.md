@@ -68,6 +68,8 @@ In build directory:\
   * https://lorensen.github.io/VTKExamples/site/Cxx/Visualization/VectorOfActors/
 * Pursued applying ImageStack - no go (see notes)
   * https://cmake.org/Wiki/VTK/Examples/Cxx/Images/ImageStack
+* Create an array of vtkActors:
+  * https://public.kitware.com/pipermail/vtkusers/2005-March/029234.html
 
 
 ### Not implemented, but for reference of others:

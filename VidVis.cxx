@@ -93,7 +93,7 @@ vtkImageData* fromMat2Vtk( Mat src ) {
 int main(int argc, char* argv[]){
   //read in video file
   string inputFilename = "../vastp1.mov";
-  //string inputFilename = "../InteractWithImage/Bunny.jpg";
+  string inputJpeg = "../InteractWithImage/Bunny.jpg";
 
   //try to open video file, else throw error and close
   VideoCapture capture(inputFilename);
@@ -141,25 +141,33 @@ int main(int argc, char* argv[]){
   //let's break some stuff...  
   // Create an actor
   //vtkImageActor *actor = vtkImageActor::New();
-  vtkImageActor **actor_array = new vtkImageActor*[clean_frames.size()];
+  /*vtkImageActor **actor_array = new vtkImageActor*[clean_frames.size()];
   for (int i= 0; i<clean_frames.size(); ++i){
     actor_array[i] = vtkImageActor::New();
     actor_array[i]->GetMapper()->SetInputData(fromMat2Vtk (clean_frames[i]));
-  }
+    actor_array[i]->Update();
+  }*/
 
-  /*Works for (single) image:
-  returned type fromMat2Vtk is vtkImageData
-  with nothing additional, fgMask is the last frame read in while loop
-  frame 1 is the first frame with stuff in it, 0 should be good for getting numbers
-  actor->GetMapper()->SetInputData(fromMat2Vtk (clean_frames[1]));
+  /*vtkJPEGReader reader = vtkJPEGReader::New();
+  reader->SetFileName(inputJpeg);
+  reader->Update();
   */
+  cv::Mat bunny = cv::imread (inputJpeg, cv::IMREAD_COLOR);
+
+  vtkImageActor *actor = vtkImageActor::New();
+  //Works for (single) image:
+  //returned type fromMat2Vtk is vtkImageData
+  //with nothing additional, fgMask is the last frame read in while loop
+  //frame 1 is the first frame with stuff in it, 0 should be good for getting numbers
+  actor->GetMapper()->SetInputData(fromMat2Vtk (bunny));
+  
 
   // Setup renderer
   vtkNamedColors *colors = vtkNamedColors::New();
 
   vtkRenderer *renderer = vtkRenderer::New();
   //for (int i = 0; i < clean_frames.size(); i++){
-    renderer->AddActor(actor_array[1]);
+  renderer->AddActor(actor);
     //renderer->Update();
   //}
   
@@ -181,9 +189,9 @@ int main(int argc, char* argv[]){
   // Render and start interaction
   interactor->Start();
 
-  for (int i= 0; i<clean_frames.size(); ++i){
+  /*for (int i= 0; i<clean_frames.size(); ++i){
     actor_array[i]->Delete();
-  } 
+  } */
   
   return EXIT_SUCCESS;
 }
