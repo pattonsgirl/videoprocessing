@@ -6,17 +6,17 @@ Create video processing solution for traffic feeds.
 Use background subtraction & other methods to clean up image (eliminate noise)
 
 ### To Run:
-****I hard coded my VTK library in CMakeLists.txt
-****May need to modify on other machines
-mkdir build
+* I hard coded my VTK library in CMakeLists.txt
+* May need to modify on other machines
+`<mkdir build>`
 In build directory:
-cmake ..
-make
-./VidVis
+`<cmake ..>`
+`<make>`
+`<./VidVis>`
 
 ### Tools:
-VTK 7.1.1
-OpenCV 4.1
+* VTK 7.1.1
+* OpenCV 4.1
 
 ### Coding Notes:
 OpenCV 4.1 has MOG, MOG2, and KNN for background subtraction
