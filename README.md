@@ -42,3 +42,8 @@ Blurring:
 https://docs.opencv.org/4.1.0/d4/d86/group__imgproc__filter.html#ga564869aa33e58769b4469101aac458f9
 Python examples (used to find classes in C for blurring)
 https://docs.opencv.org/3.1.0/d4/d13/tutorial_py_filtering.html
+Flipping images in OpenCV:
+Oldschool:
+https://docs.opencv.org/3.0-beta/doc/py_tutorials/py_imgproc/py_geometric_transformations/py_geometric_transformations.html
+Newschool:
+http://amin-ahmadi.com/2017/06/01/how-to-rotate-andor-flip-mirror-images-in-opencv/

@@ -94,18 +94,6 @@ vtkImageData* fromMat2Vtk( Mat src ) {
 
   importer->Update();
   return importer->GetOutput();
-
-  /*
-  vtkTransform *flipper = vtkTransform::New();
-  //rotate 180 - orginal was upside down
-  flipper->RotateY(180);
-  vtkImageReslice *importer_rotated = vtkImageReslice::New();
-  importer_rotated->SetInputConnection(importer->GetOutputPort());
-  importer_rotated->SetResliceTransform(flipper);
-  //flipper->Update();
-  importer_rotated->Update();
-  return importer_rotated->GetOutput();
-  */
 }
 
 //int main(int, char* [])
@@ -126,7 +114,9 @@ int main(int argc, char* argv[])
   
 
   //Ptr<BackgroundSubtractor> pBackSub = createBackgroundSubtractorKNN();
-  Ptr<BackgroundSubtractor> pBackSub = createBackgroundSubtractorMOG2();
+  //Parameters stand for:
+  //history=100,varThreshold=200,bShadowDetection=0
+  Ptr<BackgroundSubtractor> pBackSub = createBackgroundSubtractorMOG2(100,200,0);
 
   //Ptr<BackgroundSubtractor> pBackSub = BackgroundSubtractor();
 
@@ -134,6 +124,8 @@ int main(int argc, char* argv[])
   //TODO::need to set video capture to mat format
 
   Mat frame, fgMask, denoise, blur, combo;
+  //array for matrices of whole video... not sure if correct direction
+  vector<Mat> clean_frames;
   while (true) {
     capture >> frame;
     //check for end of video
@@ -152,6 +144,8 @@ int main(int argc, char* argv[])
     imshow("Frame", frame);
     imshow("FG Mask", fgMask);
     
+    //add frames / matrix to array
+    clean_frames.push_back(fgMask.clone());
     
 
     //get the input from the keyboard
@@ -159,6 +153,11 @@ int main(int argc, char* argv[])
     if (keyboard == 'q' || keyboard == 27)
       break;
   }
+
+  //prove that array of Mats was populated - side note, it does!
+  //amedWindow("Movie", 1);
+  //imshow("Movie", (clean_frames[20]));
+  //waitKey(0);
   
 
   //apply VTK translation in video loop?
