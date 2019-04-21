@@ -17,13 +17,6 @@
 #include <vtkTransform.h>
 #include <vtkTransformPolyDataFilter.h>
 #include <vtkImageReslice.h>
-#include <vtkPolyData.h>
-#include <vtkSmartPointer.h>
-#include <vtkSphereSource.h>
-//#include <vtkSphereSource.h>
-//#include <vtkGlyph3D.h>
-//#include <vtkGraph.h>
-//#include <vtkGraphToPolyData.h>
 //includes from IneractWithImage
 #include <vtkJPEGReader.h>
 #include <vtkImageMapper3D.h>
@@ -33,6 +26,18 @@
 #include <vtkImageData.h>
 #include <vtkImageMapper.h>
 #include <vtkImageMapper3D.h>
+#include <vtkObjectFactory.h>
+#include <vtkImageViewer2.h>
+#include <vtkDICOMImageReader.h>
+#include <vtkInteractorStyleImage.h>
+#include <vtkActor2D.h>
+#include <vtkTextProperty.h>
+#include <vtkTextMapper.h>
+#include <vtkImageProperty.h>
+#include <vtkImageSliceMapper.h>
+#include <vtkImageSlice.h>
+#include <vtkImageStack.h>
+
 //includes for opencv
 #include <opencv2/core/mat.hpp>
 #include <opencv2/imgproc.hpp>
@@ -52,23 +57,8 @@
 using namespace std;
 using namespace cv;
 
-//functions from InteractWithImage
+//function from InteractWithImage
 //converts from opencv matrix to VTK matrix for VTK output
-void fromMat2Vtk( Mat src, vtkImageData* dest ) {
-  vtkImageImport *importer = vtkImageImport::New();
-  Mat frame;
-  cvtColor( src, frame, COLOR_BGR2RGB);
-  if (dest) { dest = importer->GetOutput(); }
-  importer->SetDataSpacing( 1, 1, 1 );
-  importer->SetDataOrigin( 0, 0, 0 );
-  importer->SetWholeExtent( 0, frame.cols - 1, 0, frame.rows - 1, 0, 0 );
-  importer->SetDataExtentToWholeExtent();
-  importer->SetDataScalarTypeToUnsignedChar();
-  importer->SetNumberOfScalarComponents (frame.channels());
-  importer->SetImportVoidPointer( frame.data );
-  importer->Update();
-}
-
 vtkImageData* fromMat2Vtk( Mat src ) {
   vtkImageImport *importer = vtkImageImport::New();
   static Mat frame, rotMat, rotFrame;
@@ -98,15 +88,12 @@ vtkImageData* fromMat2Vtk( Mat src ) {
   return importer->GetOutput();
 }
 
-//int main(int, char* [])
-int main(int argc, char* argv[])
-{
-
+int main(int argc, char* argv[]){
   //read in video file
   string inputFilename = "../vastp1.mov";
   //string inputFilename = "../InteractWithImage/Bunny.jpg";
 
-  //try to open video file, else throw error
+  //try to open video file, else throw error and close
   VideoCapture capture(inputFilename);
   if (!capture.isOpened()){
       //error in opening the video input
@@ -114,16 +101,14 @@ int main(int argc, char* argv[])
       return 0;
   }
 
-  //Ptr<BackgroundSubtractor> pBackSub = createBackgroundSubtractorKNN();
-  //Parameters stand for:
+  //MOG2 parameters stand for:
   //history=100,varThreshold=200,bShadowDetection=0
   Ptr<BackgroundSubtractor> pBackSub = createBackgroundSubtractorMOG2(100,200,0);
   
-  //TODO::need to set video capture to mat format
-
   Mat frame, fgMask, denoise, blur, combo;
   //array for matrices of whole video... not sure if correct direction
   vector<Mat> clean_frames;
+  //process video in OpenCV, apply bg subtraction
   while (true) {
     capture >> frame;
     //check for end of video
@@ -141,72 +126,61 @@ int main(int argc, char* argv[])
     //show the current frame and the fg masks
     imshow("Frame", frame);
     imshow("FG Mask", fgMask);
-    //imshow("Subtract?", frame - fgMask); - lol, not that easy
     
     //add frames / matrix to array
     clean_frames.push_back(fgMask.clone());
     
-
     //get the input from the keyboard
     int keyboard = waitKey(30);
     if (keyboard == 'q' || keyboard == 27)
       break;
   }
 
-  //prove that array of Mats was populated - side note, it works!
-  //amedWindow("Movie", 1);
-  //imshow("Movie", (clean_frames[20]));
-  //waitKey(0);
-
-  //let's break some stuff...
-  //vector of actors
-  std::vector<vtkSmartPointer<vtkActor>> actors;
-  for(int i = 0; i < clean_frames.size(); i++){
-    vtkImageMapper *mapper = vtkImageMapper::New();
-    mapper->SetInputData(fromMat2Vtk(clean_frames[i]));
-    vtkImageActor *actor = vtkImageActor::New();
-    //actor->GetMapper()->SetInputData(fromMat2Vtk (clean_frames[i]));
-    actor->SetMapper(mapper);
-    actors.push_back(actor);
-  }
-  //for(unsigned int i = 0; i < 10; i++)
-  /*for(int i = 0; i < clean_frames.size(); i++)
-  {
-    //vtkSmartPointer<vtkSphereSource> sphereSource = vtkSmartPointer<vtkSphereSource>::New();
-    //sphereSource->SetCenter(i, 0.0, 0.0);
-    //sphereSource->SetRadius(.2);
-
-    vtkPolyDataMapper *mapper = vtkPolyDataMapper::New();
-    //mapper->SetInputConnection(sphereSource->GetOutputPort());
-    mapper->SetInputConnection(fromMat2Vtk(clean_frames[i]));
-
-    vtkActor *actor = vtkActor::New();
-    actor->SetMapper(mapper);
-    
-    actors.push_back(actor);
-  }*/
-  
-
-  //apply VTK translation in video loop?
+  //let's break some stuff...  
   // Create an actor
   //vtkImageActor *actor = vtkImageActor::New();
-  //actor->GetMapper()->SetInputConnection(reader->GetOutputPort());
-  //returned type is vtkImageData
+  //returned type fromMat2Vtk is vtkImageData
   //with nothing additional, fgMask is the last frame read in while loop
-  //actor->GetMapper()->SetInputData(fromMat2Vtk (fgMask));
+  //frame 1 is the first frame with stuff in it, 0 should be good for getting numbers
+  //actor->GetMapper()->SetInputData(fromMat2Vtk (clean_frames[1]));
 
+  //vtkImageReader *read_init = vtkImageReader::New();
+  //read_init->
   
+  //for (int i = 0; i < clean_frames.size(); i++){
+  vtkImageSliceMapper *imageSliceMapper1 = vtkImageSliceMapper::New();
+  imageSliceMapper1->SetInputData(fromMat2Vtk (clean_frames[5]));
+  vtkImageSlice *imageSlice1 = vtkImageSlice::New();
+  imageSlice1->SetMapper(imageSliceMapper1);
+  imageSlice1->GetProperty()->SetOpacity(.5);
+
+  vtkImageSliceMapper *imageSliceMapper2 = vtkImageSliceMapper::New();
+  imageSliceMapper2->SetInputData(fromMat2Vtk (clean_frames[115]));
+  vtkImageSlice *imageSlice2 = vtkImageSlice::New();
+  imageSlice2->SetMapper(imageSliceMapper2);
+  imageSlice2->GetProperty()->SetOpacity(.2);
+    //vtkImageActor *actor = vtkImageActor::New();
+    //actor->GetMapper()->SetInputData(fromMat2Vtk (clean_frames[i]));
+    //actor->Update();
+  //}
+
+  //vtkMetaImageReader *reader = vtkMetaImageReader::New();
+  //reader->
+
+  vtkImageStack *imageStack = vtkImageStack::New();
+  imageStack->AddImage(imageSlice1);
+  imageStack->AddImage(imageSlice2);
+  //imageStack->SetActiveLayer(1);
 
   // Setup renderer
   vtkNamedColors *colors = vtkNamedColors::New();
 
   vtkRenderer *renderer = vtkRenderer::New();
   //renderer->AddActor(actor);
+  renderer->AddViewProp(imageStack);
+  renderer->ResetCamera();
   // Add the actors to the scene
-  for(int i = 0; i < actors.size(); i++)
-  {
-    renderer->AddActor(actors[i]);
-  }
+  
   renderer->ResetCamera();
   renderer->SetBackground(colors->GetColor3d("Burlywood").GetData());
 

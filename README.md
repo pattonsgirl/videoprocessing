@@ -19,6 +19,7 @@ In build directory:\
 * OpenCV 4.1
 
 ### Coding Notes:
+#### For cleaning up images:
 * OpenCV 4.1 has MOG, MOG2, and KNN for background subtraction
 * Intial exploration is with KNN background subtraction
 * Looked into despeckle filters - added fastNlMeansDenoising - ran after KNN background subtraction
@@ -26,6 +27,15 @@ In build directory:\
 * Explored blurring to reduce pixel noise.  Did not notice improvements with medianBlur / GaussianBlur
 * In the end, stuck with MOG2 with custom parameters and stopped working on external methods.
 * Future work: would explore connected components algorithms
+#### For volume rendering:
+* Pursued applying vector of actors.  Image type cannot be converted in similar way.
+  * Committed code in case anyone wants to refer to old version
+* Best VTK example is ReadDICOMSeries
+  * Takes a series of images and stacks them
+* Another lead - VTK Image Stack
+  * Is not overlapping image frames in way I thought it was.
+  * Also, don't know how to load all frames into buffer to display as one volume
+
 
 
 ### Notes on files:
@@ -54,7 +64,8 @@ In build directory:\
   * http://amin-ahmadi.com/2017/06/01/how-to-rotate-andor-flip-mirror-images-in-opencv/
 * Creating array of OpenCV Mats:
   * https://stackoverflow.com/questions/9138537/opencv-creating-an-array-of-mat-objects
-  
+* Pursued applying vector of actors - no go
+  * https://lorensen.github.io/VTKExamples/site/Cxx/Visualization/VectorOfActors/
 
 
 ### Not implemented, but for reference of others:
