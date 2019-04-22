@@ -48,7 +48,6 @@ In build directory:\
 * Used code from InteractWithImage to get functions to translate from 
   * OpenCV matrix to VTK pipleline & breadboard of VTK pipeline
 
-
 ### Examples referenced:
 * Lecture Slides for Image Processing / Feature Detection
   * http://avida.cs.wright.edu/courses/CEG7560/CEG7560_8.pdf

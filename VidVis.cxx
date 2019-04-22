@@ -166,7 +166,7 @@ int main(int argc, char* argv[]){
   
   vtkImageAppend *appendImgs = vtkImageAppend::New();
   appendImgs->SetInputData(fromMat2Vtk(frame));
-  //appendImgs->SetInputData(fromMat2Vtk(bunny));
+  appendImgs->SetInputData(fromMat2Vtk(bunny));
   //The default AppendAxis is the X axis. 
   //If you want to create a volue from a series of XY images, 
   //then you should set the AppendAxis to 2 (Z axis).
@@ -175,7 +175,9 @@ int main(int argc, char* argv[]){
 
   // Create a viewer for the gradient image
   vtkImageViewer2 *viewer = vtkImageViewer2::New();
+  viewer->SetSliceOrientationToXZ();
   viewer->SetInputData(appendImgs->GetOutput());
+  //viewer->SetSlice(1);
   viewer->SetupInteractor(iren);
 
   // Initialize the event loop and then start it.
