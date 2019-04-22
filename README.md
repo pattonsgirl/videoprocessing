@@ -39,6 +39,9 @@ In build directory:\
   * When I append, the opacity? coloring? by default is not the image default
   * Cannot tell if images are properly appending or not
   * IF it's working, then I need to instantiate a loop to append the rest of the images
+#### Next steps:
+* Pursue pipeline as in VTK example Medical Demo 4
+  * https://lorensen.github.io/VTKExamples/site/Cxx/Medical/MedicalDemo4/
 
 ### Notes on files:
 * vastp1.mov & vastp2.mov are files provided for analysis
@@ -72,7 +75,12 @@ In build directory:\
   * https://cmake.org/Wiki/VTK/Examples/Cxx/Images/ImageStack
 * Create an array of vtkActors:
   * https://public.kitware.com/pipermail/vtkusers/2005-March/029234.html
-
+* Example using vtkImageAppend
+  * https://www.cs.odu.edu/~jrcrouch/courses/cs461-s06/examples/Feb21_ClassExample.cpp
+* Example with ImageSlicing & SliceArrays:
+  * https://vtk.org/gitweb?p=VTK.git;a=blob;f=Examples/ImageProcessing/Python/ImageInteractorReslice.py
+* Restoring brightness & contrast to Images?:
+  * https://stackoverflow.com/questions/17313709/how-to-restore-brightness-and-contrast-in-vtk
 
 ### Not implemented, but for reference of others:
 * Connected Components Algorithm(s) - to be added in combination of background subtraction
