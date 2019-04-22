@@ -39,9 +39,22 @@ In build directory:\
   * When I append, the opacity? coloring? by default is not the image default
   * Cannot tell if images are properly appending or not
   * IF it's working, then I need to instantiate a loop to append the rest of the images
-#### Next steps:
-* Pursue pipeline as in VTK example Medical Demo 4
-  * https://lorensen.github.io/VTKExamples/site/Cxx/Medical/MedicalDemo4/
+* Attemped to implement vtkImageData as vtkVolume - this latest commit won't compile
+  * Referenced TIFFs as volume psuedocode (link in references)
+  * Problems: ImageReader does not accept ImageData format?  
+  * Don't have a deep enough understanding of data types I can pull from classes
+
+#### Take aways:
+* VTK Image Append was likely the best strategy in terms of progress made.
+* Did not have a clear way to reset the opacity / coloring to what should be in the frame
+* Most examples (DICOM and MedicalDemo4) relied on image files (or a folder of images) which were then read to \
+a VTK type.  Since I have VTKImageData after the conversion, I tried to solve this problem based on the \
+VTKSmartVolumeMapper example.  SmartVolumeMapper created its own sphere, sliced it, and stored it as ImageData. \
+However these weren't VTK Image Slices, so it was challenging to translate it to the case of storing ImageData \
+in the ImageData "array".  
+* Good news: did discover (and fix) that fromMat2VTK gave back images that were upside-down
+  * Fix was to rotate 180 degress, then mirror horizontally
+  * Using flip() for both rotations was likely easier, but I was pround I got the longer method to work
 
 ### Notes on files:
 * vastp1.mov & vastp2.mov are files provided for analysis
@@ -80,6 +93,8 @@ In build directory:\
   * https://vtk.org/gitweb?p=VTK.git;a=blob;f=Examples/ImageProcessing/Python/ImageInteractorReslice.py
 * Restoring brightness & contrast to Images?:
   * https://stackoverflow.com/questions/17313709/how-to-restore-brightness-and-contrast-in-vtk
+* TIFFs as volume psuedocode:
+  * https://public.kitware.com/pipermail/vtkusers/2013-March/078866.html
 
 ### Not implemented, but for reference of others:
 * Connected Components Algorithm(s) - to be added in combination of background subtraction

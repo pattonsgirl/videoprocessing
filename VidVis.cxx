@@ -38,6 +38,8 @@
 #include <vtkImageReader.h>
 #include <vtkSmartVolumeMapper.h>
 #include <vtkImageBlend.h>
+#include <vtkPointData.h>
+#include <vtkUnsignedShortArray.h>
 
 //includes for opencv
 #include <opencv2/core/mat.hpp>
@@ -108,15 +110,16 @@ int main(int argc, char* argv[]){
 
   //Intitialize some VTK stuff for use down the line
   //vtkImageData to hold images post conversion - images loaded in loop
-  vtkImageData *movieData = vtkImageData::New();
+  //vtkImageData *movieData = vtkImageData::New();
   //Create a smart volume mapper
-  vtkSmartVolumeMapper *volumeMapper = vtkSmartVolumeMapper::New();
-  volumeMapper->SetBlendModeToComposite(); 
+  //vtkSmartVolumeMapper *volumeMapper = vtkSmartVolumeMapper::New();
+  //volumeMapper->SetBlendModeToComposite(); 
   //in sample code, there is an image data
   //the code itself creates a sphere, slices it, and loads that into image data
   //going to try to do something similar, but put it in the cv loop instead
   //volumeMapper->SetInputData(imageData);
 
+  
   
   Mat frame, fgMask, denoise, blur, combo;
   //array for matrices of whole video... not sure if correct direction
@@ -144,7 +147,7 @@ int main(int argc, char* argv[]){
     clean_frames.push_back(fgMask.clone());
 
     //add frames to vtkImageData:
-    movieData->CopyStructure(fromMat2Vtk(fgMask));
+    //movieData->CopyStructure(fromMat2Vtk(fgMask));
     //movieData->Update();
     
     //get the input from the keyboard
@@ -162,6 +165,27 @@ int main(int argc, char* argv[]){
   //with nothing additional, fgMask is the last frame read in while loop
   //frame 1 is the first frame with stuff in it, 0 should be good for getting numbers
   //actor->GetMapper()->SetInputData(fromMat2Vtk (bunny));
+  vtkImageReader *img_data = vtkImageReader::New();
+
+  //by the time we get here, we know the size of the images (how long the video is)
+  vtkImageData *img_volume = vtkImageData::New();
+  img_volume->SetExtent((0, frame.cols, 0, frame.rows, 0, clean_frames.size()-1));
+  int numcells = img_volume->GetNumberOfCells();
+  int numpoints = img_volume->GetNumberOfPoints();
+
+  //create an array (not the volume)
+  vtkUnsignedShortArray *img_array = vtkUnsignedShortArray::New();
+  img_array->SetNumberOfValues(numpoints);
+  //iterate through clean frames, translate to VTK (fromMat2Vtk)
+  for(int i = 0; i < clean_frames.size(); i++){
+    int vals = (fromMat2Vtk(clean_frames[i]))->GetPointData();
+    int offset = i*clean_frames.size();
+    for(int j = 0; j < vals; j++){
+      img_array->SetValue(offset+j, j);
+    }
+  }
+  
+  img_volume->GetPointData()->SetArray(img_array);
 
   // Setup renderer
   vtkNamedColors *colors = vtkNamedColors::New();
