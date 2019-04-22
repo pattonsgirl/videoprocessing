@@ -1,5 +1,4 @@
 #include <vtkSmartPointer.h>
-#include <vtkOBJReader.h>
 //includes from ReadOBJ
 #include <vtkPolyDataMapper.h>
 #include <vtkActor.h>
@@ -28,7 +27,6 @@
 #include <vtkImageMapper3D.h>
 #include <vtkObjectFactory.h>
 #include <vtkImageViewer2.h>
-#include <vtkDICOMImageReader.h>
 #include <vtkInteractorStyleImage.h>
 #include <vtkActor2D.h>
 #include <vtkTextProperty.h>
@@ -38,7 +36,8 @@
 #include <vtkImageSlice.h>
 #include <vtkImageStack.h>
 #include <vtkImageReader.h>
-#include "vtkImageAppend.h"
+#include <vtkSmartVolumeMapper.h>
+#include <vtkImageBlend.h>
 
 //includes for opencv
 #include <opencv2/core/mat.hpp>
@@ -106,6 +105,18 @@ int main(int argc, char* argv[]){
   //MOG2 parameters stand for:
   //history=100,varThreshold=200,bShadowDetection=0
   Ptr<BackgroundSubtractor> pBackSub = createBackgroundSubtractorMOG2(100,200,0);
+
+  //Intitialize some VTK stuff for use down the line
+  //vtkImageData to hold images post conversion - images loaded in loop
+  vtkImageData *movieData = vtkImageData::New();
+  //Create a smart volume mapper
+  vtkSmartVolumeMapper *volumeMapper = vtkSmartVolumeMapper::New();
+  volumeMapper->SetBlendModeToComposite(); 
+  //in sample code, there is an image data
+  //the code itself creates a sphere, slices it, and loads that into image data
+  //going to try to do something similar, but put it in the cv loop instead
+  //volumeMapper->SetInputData(imageData);
+
   
   Mat frame, fgMask, denoise, blur, combo;
   //array for matrices of whole video... not sure if correct direction
@@ -131,6 +142,10 @@ int main(int argc, char* argv[]){
     
     //add frames / matrix to array
     clean_frames.push_back(fgMask.clone());
+
+    //add frames to vtkImageData:
+    movieData->CopyStructure(fromMat2Vtk(fgMask));
+    //movieData->Update();
     
     //get the input from the keyboard
     int keyboard = waitKey(30);
@@ -138,20 +153,7 @@ int main(int argc, char* argv[]){
       break;
   }
 
-  //let's break some stuff...  
-  // Create an actor
-  //vtkImageActor *actor = vtkImageActor::New();
-  /*vtkImageActor **actor_array = new vtkImageActor*[clean_frames.size()];
-  for (int i= 0; i<clean_frames.size(); ++i){
-    actor_array[i] = vtkImageActor::New();
-    actor_array[i]->GetMapper()->SetInputData(fromMat2Vtk (clean_frames[i]));
-    actor_array[i]->Update();
-  }*/
-
-  /*vtkJPEGReader reader = vtkJPEGReader::New();
-  reader->SetFileName(inputJpeg);
-  reader->Update();
-  */
+  //let's break some stuff... 
   cv::Mat bunny = cv::imread (inputJpeg, cv::IMREAD_COLOR);
 
   //vtkImageActor *actor = vtkImageActor::New();
@@ -161,38 +163,11 @@ int main(int argc, char* argv[]){
   //frame 1 is the first frame with stuff in it, 0 should be good for getting numbers
   //actor->GetMapper()->SetInputData(fromMat2Vtk (bunny));
 
-  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
-
-  
-  vtkImageAppend *appendImgs = vtkImageAppend::New();
-  appendImgs->SetInputData(fromMat2Vtk(frame));
-  appendImgs->SetInputData(fromMat2Vtk(bunny));
-  //The default AppendAxis is the X axis. 
-  //If you want to create a volue from a series of XY images, 
-  //then you should set the AppendAxis to 2 (Z axis).
-  appendImgs->SetAppendAxis(2);
-  appendImgs->Update();
-
-  // Create a viewer for the gradient image
-  vtkImageViewer2 *viewer = vtkImageViewer2::New();
-  viewer->SetSliceOrientationToXZ();
-  viewer->SetInputData(appendImgs->GetOutput());
-  //viewer->SetSlice(1);
-  viewer->SetupInteractor(iren);
-
-  // Initialize the event loop and then start it.
-  iren->Initialize();
-  iren->Start();
-
-  /*
   // Setup renderer
   vtkNamedColors *colors = vtkNamedColors::New();
 
   vtkRenderer *renderer = vtkRenderer::New();
-  //for (int i = 0; i < clean_frames.size(); i++){
   renderer->AddActor(actor);
-    //renderer->Update();
-  //}
   
   renderer->ResetCamera();
   renderer->SetBackground(colors->GetColor3d("Burlywood").GetData());
@@ -212,9 +187,6 @@ int main(int argc, char* argv[]){
   // Render and start interaction
   interactor->Start();
 
-  /*for (int i= 0; i<clean_frames.size(); ++i){
-    actor_array[i]->Delete();
-  } */
   
   return EXIT_SUCCESS;
 }
