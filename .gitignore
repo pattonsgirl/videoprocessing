@@ -1,6 +1,9 @@
 #ignore build dir
 /build
 /InteractWithImage/build
+/InteractWithImage/Makefile
+/InteractWithImage/Bunny.jpg
+/InteractWithImage/cmake_install.cmake
 vastp1.mov
 vastp2.mov
 vtk-opencv.build

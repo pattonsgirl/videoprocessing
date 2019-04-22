@@ -19,7 +19,7 @@ In build directory:\
 * OpenCV 4.1
 
 ### Coding Notes:
-#### For cleaning up images:
+#### For cleaning up video:
 * OpenCV 4.1 has MOG, MOG2, and KNN for background subtraction
 * Intial exploration is with KNN background subtraction
 * Looked into despeckle filters - added fastNlMeansDenoising - ran after KNN background subtraction
@@ -35,8 +35,10 @@ In build directory:\
 * Another lead - VTK Image Stack
   * Is not overlapping image frames in way I thought it was.
   * Also, don't know how to load all frames into buffer to display as one volume
-
-
+* VTK Image Append - this or Image Stack holds the key
+  * When I append, the opacity? coloring? by default is not the image default
+  * Cannot tell if images are properly appending or not
+  * IF it's working, then I need to instantiate a loop to append the rest of the images
 
 ### Notes on files:
 * vastp1.mov & vastp2.mov are files provided for analysis

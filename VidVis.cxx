@@ -38,7 +38,7 @@
 #include <vtkImageSlice.h>
 #include <vtkImageStack.h>
 #include <vtkImageReader.h>
-
+#include "vtkImageAppend.h"
 
 //includes for opencv
 #include <opencv2/core/mat.hpp>
@@ -154,14 +154,35 @@ int main(int argc, char* argv[]){
   */
   cv::Mat bunny = cv::imread (inputJpeg, cv::IMREAD_COLOR);
 
-  vtkImageActor *actor = vtkImageActor::New();
+  //vtkImageActor *actor = vtkImageActor::New();
   //Works for (single) image:
   //returned type fromMat2Vtk is vtkImageData
   //with nothing additional, fgMask is the last frame read in while loop
   //frame 1 is the first frame with stuff in it, 0 should be good for getting numbers
-  actor->GetMapper()->SetInputData(fromMat2Vtk (bunny));
-  
+  //actor->GetMapper()->SetInputData(fromMat2Vtk (bunny));
 
+  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
+
+  
+  vtkImageAppend *appendImgs = vtkImageAppend::New();
+  appendImgs->SetInputData(fromMat2Vtk(frame));
+  //appendImgs->SetInputData(fromMat2Vtk(bunny));
+  //The default AppendAxis is the X axis. 
+  //If you want to create a volue from a series of XY images, 
+  //then you should set the AppendAxis to 2 (Z axis).
+  appendImgs->SetAppendAxis(2);
+  appendImgs->Update();
+
+  // Create a viewer for the gradient image
+  vtkImageViewer2 *viewer = vtkImageViewer2::New();
+  viewer->SetInputData(appendImgs->GetOutput());
+  viewer->SetupInteractor(iren);
+
+  // Initialize the event loop and then start it.
+  iren->Initialize();
+  iren->Start();
+
+  /*
   // Setup renderer
   vtkNamedColors *colors = vtkNamedColors::New();
 
