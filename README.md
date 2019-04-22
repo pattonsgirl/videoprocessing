@@ -46,7 +46,8 @@ In build directory:\
 
 #### Take aways:
 * VTK Image Append was likely the best strategy in terms of progress made.
-* Did not have a clear way to reset the opacity / coloring to what should be in the frame
+* Did not have a clear way to reset the opacity / coloring to what should be in the frame \ 
+This may have been possible with vtkImageLuminence filter
 * Most examples (DICOM and MedicalDemo4) relied on image files (or a folder of images) which were then read to \
 a VTK type.  Since I have VTKImageData after the conversion, I tried to solve this problem based on the \
 VTKSmartVolumeMapper example.  SmartVolumeMapper created its own sphere, sliced it, and stored it as ImageData. \
